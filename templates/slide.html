@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>decroustra.AI - Slide</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box }
+body {
+    background: #0f0f23;
+    display: flex; justify-content: center; align-items: center;
+    min-height: 100vh; font-family: Inter, system-ui, sans-serif;
+}
+.slide {
+    width: 960px; height: 540px;
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+    border-radius: 20px;
+    border: 2px solid #2a2a4a;
+    padding: 40px 50px;
+    display: flex; flex-direction: column;
+    color: #e0e0e0;
+    position: relative; overflow: hidden;
+}
+.slide::before {
+    content: ''; position: absolute;
+    top: -100px; right: -100px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(233,69,96,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+}
+.header {
+    display: flex; align-items: center; gap: 14px;
+    margin-bottom: 24px;
+}
+.logo {
+    width: 44px; height: 44px;
+    background: linear-gradient(135deg, #e94560, #c23152);
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; color: white;
+}
+.title { font-size: 26px; font-weight: 700; color: #fff }
+.title span { color: #e94560 }
+.tagline { color: #8a8aaa; font-size: 13px; margin-top: 2px }
+.badge {
+    background: rgba(233,69,96,0.1); color: #e94560;
+    padding: 4px 12px; border-radius: 14px; font-size: 11px;
+    font-weight: 600; letter-spacing: 1px; border: 1px solid rgba(233,69,96,0.2);
+    margin-left: auto;
+}
+.grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; flex:1 }
+.col { display: flex; flex-direction: column; gap: 14px }
+.box {
+    background: rgba(255,255,255,0.03); border: 1px solid #2a2a4a;
+    border-radius: 12px; padding: 16px;
+}
+.box h3 { font-size: 13px; color: #e94560; margin-bottom: 6px; font-weight: 600 }
+.box p { font-size: 12px; color: #8a8aaa; line-height: 1.6 }
+.stats {
+    display: grid; grid-template-columns: 1fr 1fr 1fr;
+    gap: 10px; margin-top: 4px;
+}
+.stat {
+    background: rgba(233,69,96,0.05); border: 1px solid rgba(233,69,96,0.12);
+    border-radius: 10px; padding: 12px; text-align: center;
+}
+.stat .num { font-size: 22px; font-weight: 700; color: #e94560 }
+.stat .label { font-size: 10px; color: #8a8aaa; margin-top: 2px }
+.tech-tags {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px;
+}
+.tech-tag {
+    background: rgba(255,255,255,0.05); border: 1px solid #2a2a4a;
+    border-radius: 14px; padding: 4px 10px; font-size: 10px; color: #b0b0d0;
+}
+.tech-tag.highlight {
+    background: rgba(233,69,96,0.1); border-color: rgba(233,69,96,0.25);
+    color: #e94560;
+}
+.limits {
+    background: rgba(233,69,96,0.04); border: 1px solid rgba(233,69,96,0.1);
+    border-radius: 10px; padding: 10px 14px;
+    font-size: 10px; color: #7a7a9a; line-height: 1.7;
+}
+.limits strong { color: #e94560 }
+.footer {
+    display: flex; justify-content: space-between; align-items: center;
+    margin-top: 20px; padding-top: 14px;
+    border-top: 1px solid #2a2a4a; font-size: 10px; color: #5a5a7a;
+}
+.footer .powers { display: flex; gap: 12px }
+</style>
+</head>
+<body>
+<div class="slide">
+    <div class="header">
+        <div class="logo">🕵️</div>
+        <div>
+            <div class="title">decroustra<span>.AI</span></div>
+            <div class="tagline">Missing Persons — Côte d'Ivoire</div>
+        </div>
+        <div class="badge">TRACK 3 · SECURITY & COMPLIANCE</div>
+    </div>
+
+    <div class="grid">
+        <!-- LEFT -->
+        <div class="col">
+            <div class="box">
+                <h3>🔴 Problem</h3>
+                <p>In Côte d'Ivoire, missing person alerts are scattered across dozens of Facebook groups. Zero centralization. Families manually scan hundreds of posts daily.</p>
+            </div>
+            <div class="box">
+                <h3>🟢 Solution</h3>
+                <p>AI agent that scrapes Facebook public groups, extracts missing persons automatically, and lets families search in natural language: "My son David, 11, Abidjan?"</p>
+            </div>
+            <div class="box">
+                <h3>⚠️ What it does NOT do</h3>
+                <div class="limits">
+                • Does not replace emergency services (Police 170, Fire 185)<br>
+                • No legal or medical advice · No direct family contact<br>
+                • Public data only — accuracy cannot be 100% guaranteed
+                </div>
+            </div>
+        </div>
+
+        <!-- RIGHT -->
+        <div class="col">
+            <h3 style="font-size:13px;color:#e94560;font-weight:600;margin-bottom:2px">📊 Real Data Results</h3>
+            <div class="stats">
+                <div class="stat">
+                    <div class="num">7,139</div><div class="label">Posts scraped</div>
+                </div>
+                <div class="stat">
+                    <div class="num">1,872</div><div class="label">Alerts extracted</div>
+                </div>
+                <div class="stat">
+                    <div class="num">949</div><div class="label">Locations</div>
+                </div>
+            </div>
+
+            <div class="box" style="margin-top:4px">
+                <h3>🔧 Bright Data Stack</h3>
+                <div class="tech-tags">
+                    <span class="tech-tag highlight">Web Unlocker</span>
+                    <span class="tech-tag highlight">Facebook Scraper API</span>
+                    <span class="tech-tag highlight">SERP API</span>
+                    <span class="tech-tag">DeepSeek</span>
+                    <span class="tech-tag">Python + Flask</span>
+                    <span class="tech-tag">Chatbot</span>
+                    <span class="tech-tag">NLP</span>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3>🧠 Smart Features</h3>
+                <p>
+                • 111 duplicate groups detected (same person = 1 alert)<br>
+                • Missing↔Found auto-matching (keywords: "retrouvé!", "found")<br>
+                • Natural language: detects "my son X, age Y, Z location"<br>
+                • Clear onboarding: what it does & what it doesn't
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer">
+        <span>Web Data UNLOCKED Hackathon — Bright Data × lablab.ai — May 2026</span>
+        <div class="powers">github.com/gedenedavid-ops/decroustra-AI</div>
+    </div>
+</div>
+</body>
+</html>

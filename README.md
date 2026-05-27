@@ -1,155 +1,155 @@
-# decroustra.AI — Agent de surveillance des disparitions en Côte d'Ivoire
+# decroustra.AI — Missing Persons Monitoring Agent for Côte d'Ivoire
 
-🕵️ **Track 3 : Security & Compliance** — Web Data UNLOCKED Hackathon (Bright Data)
+🕵️ **Track 3: Security & Compliance** — Web Data UNLOCKED Hackathon (Bright Data × lablab.ai)
 
-*"Centralisons les alertes. Retrouvons les personnes."*
+*"Centralize alerts. Find people."*
 
 ---
 
-## 🔴 Problème
+## 🔴 Problem
 
-En Côte d'Ivoire, les annonces de disparition sont éparpillées sur les réseaux sociaux : groupes Facebook publics, pages d'actualité, forums. 
+In Côte d'Ivoire, missing person alerts are scattered across dozens of Facebook public groups, news sites, and forums.
 
-Une famille qui cherche un proche doit :
-- Surveiller 5+ groupes Facebook différents
-- Scanner des centaines de posts par jour
-- Recouper les informations manuellement
-- Appeler 15 numéros différents
+A family searching for a loved one must:
+- Monitor 5+ different Facebook groups
+- Manually scan hundreds of posts daily
+- Cross-reference information by hand
+- Call 15+ different numbers
 
-**Aucune centralisation n'existe.**
+**Zero centralization exists.**
 
 ---
 
 ## 🟢 Solution
 
-**decroustra.AI** est un agent IA qui :
+**decroustra.AI** is an AI agent that:
 
-| Action | Détail |
+| Action | Detail |
 |--------|--------|
-| **Scrape en continu** | Groupes Facebook publics, Google Actualités, sites d'actus ivoiriens |
-| **Extrait automatiquement** | Nom, âge, lieu, date, contact de chaque disparition |
-| **Détecte les doublons** | Une même personne signalée 3 fois = 1 alerte |
-| **Apparie Disparu/Retrouvé** | Croise les posts "retrouvé !" avec les avis de recherche |
-| **Permet de rechercher** | Chat en langage naturel : *"enfants disparus à Yopougon ?"* |
+| **Scrapes continuously** | Facebook public groups (with Google + news sites ready) |
+| **Extracts automatically** | Name, age, location, date, contact from each post via DeepSeek |
+| **Detects duplicates** | Same person reported 3 times = 1 alert (111 groups found) |
+| **Matches Missing↔Found** | Cross-references "found!" posts with active missing alerts |
+| **Natural language search** | *"Children missing in Yopougon?"* — *"My son David, 11, Abidjan?"* |
 
 ---
 
-## ⚠️ Limites claires (affichées dès l'ouverture)
+## ⚠️ Clear Limitations (shown on opening)
 
-- **Ne remplace pas les secours** (Police 170, Pompiers 185)
-- **Ne donne pas de conseils** juridiques ou médicaux
-- **Données publiques uniquement** — non vérifiées à 100%
-- **Ne contacte pas les familles** directement
+- **Does not replace emergency services** (Police 170, Fire 185)
+- **No legal or medical advice**
+- **Public data only** — accuracy cannot be 100% guaranteed
+- **Does not contact families directly**
 
 ---
 
 ## 🧱 Architecture
 
 ```
-Utilisateur → [Interface Chat Flask] → [DeepSeek] → Réponse
-                        ↓
-              [Moteur de recherche]
-                        ↓
-              [alerts.json — 1800+ alertes]
-                        ↑
-    ┌───────────────────┼───────────────────┐
-    ↓                   ↓                   ↓
-[Facebook Scraper]  [SERP API]     [Web Unlocker]
-(Bright Data)      (Google Search)  (Sites d'actus)
+User → [Flask Chat Interface] → [DeepSeek] → Response
+                    ↓
+          [Search Engine]
+                    ↓
+          [alerts.json — 1,800+ alerts]
+                    ↑
+  ┌─────────────────┼───────────────────┐
+  ↓                 ↓                   ↓
+[Facebook Scraper] [SERP API]     [Web Unlocker]
+(Bright Data)     (Google Search)  (News sites)
 ```
 
 ---
 
-## 🔧 Stack technique
+## 🔧 Tech Stack
 
-| Technologie | Usage |
-|-------------|-------|
-| **Bright Data Web Unlocker** | Contourner les blocages Facebook |
-| **Bright Data Facebook Scraper API** | Posts structurés des groupes |
-| **Bright Data SERP API** | Recherche Google multi-sources |
-| **DeepSeek API** | Extraction des disparitions + Chatbot |
-| **Python + Flask** | Serveur web + interface |
-| **JSON** | Stockage local (pas de BDD) |
-
----
-
-## 📊 Résultats (données réelles)
-
-| Métrique | Valeur |
-|----------|--------|
-| Posts Facebook scrappés | 7 139 |
-| Posts analysés | 3 951 |
-| **Alertes extraites** | **1 872** |
-| Groupes de doublons | 111 |
-| Localités couvertes | 949 |
-| Âge min / max | 2 ans / 90 ans |
+| Technology | Usage |
+|------------|-------|
+| **Bright Data Web Unlocker** | Bypass Facebook blocking |
+| **Bright Data Facebook Scraper API** | Structured JSON posts from groups |
+| **Bright Data SERP API** | Multi-source Google search (ready) |
+| **DeepSeek API** | Missing person extraction + Chatbot |
+| **Python + Flask** | Web server + interface |
+| **JSON** | Local storage (no database needed) |
 
 ---
 
-## 🚀 Lancement
+## 📊 Results (real data from Ivorian Facebook groups)
+
+| Metric | Value |
+|--------|-------|
+| Facebook posts scraped | 7,139 |
+| Posts analyzed by DeepSeek | 3,951 |
+| **Alerts extracted** | **1,872** |
+| Duplicate groups detected | 111 |
+| Locations covered | 949 |
+| Age range | 2 — 90 years |
+
+Source: "SOS ENFANTS DISPARUS DE COTE D'IVOIRE" and related public Facebook groups.
+
+---
+
+## 🚀 Quick Start
 
 ```bash
-# 1. Installer les dépendances
+# 1. Install dependencies
 pip install -r requirements.txt
 
-# 2. Configurer les clés API (.env)
+# 2. Configure API keys (.env)
 cp .env.example .env
-# → Ajouter BRIGHT_DATA_API_KEY, BRIGHT_DATA_ZONE, DEEPSEEK_API_KEY
+# → Add BRIGHT_DATA_API_KEY, BRIGHT_DATA_ZONE, DEEPSEEK_API_KEY
 
-# 3. Scraper les données
-python facebook_scraper.py    # Posts Facebook structurés
-python web_scraper.py         # Google + sites d'actus
+# 3. Scrape data
+python facebook_scraper.py    # Facebook structured posts
+python web_scraper.py         # Google + news sites
 
-# 4. Extraire les disparitions
-python run_extraction.py      # DeepSeek analyse tous les posts
+# 4. Extract missing persons
+python run_extraction.py      # DeepSeek analyzes all posts
 
-# 5. Détecter doublons + appariements
+# 5. Detect duplicates + match resolved cases
 python dedup.py
 
-# 6. Lancer l'interface
+# 6. Launch interface
 python app.py
 # → http://localhost:5000
 ```
 
 ---
 
-## 📁 Structure
+## 📁 Project Structure
 
 ```
 decroustra.AI/
-├── app.py                  # Serveur Flask + API chat
-├── search.py               # Moteur de recherche
+├── app.py                  # Flask server + chat API
+├── search.py               # Search engine (location, age, keyword, NLP)
 ├── scraper.py              # Web Unlocker (Facebook HTML)
-├── facebook_scraper.py     # Facebook Scraper API (JSON structuré)
-├── web_scraper.py          # SERP API + sites d'actus
-├── run_extraction.py       # DeepSeek extraction massive
-├── dedup.py                # Détection doublons + appariements
-├── config.py               # Clés API
+├── facebook_scraper.py     # Facebook Scraper API (structured JSON)
+├── web_scraper.py          # SERP API + news sites
+├── run_extraction.py       # DeepSeek batch extraction
+├── dedup.py                # Duplicate detection + Missing↔Found matching
+├── config.py               # API keys
 ├── templates/
-│   └── index.html          # Interface chat
+│   ├── index.html          # Chat interface
+│   └── slide.html          # Presentation slide
 ├── data/
-│   ├── alerts.json         # Base d'alertes
-│   └── raw/                # Données brutes
+│   ├── alerts.json         # Alert database
+│   └── raw/                # Raw scraped data
 ├── requirements.txt
 ├── .env.example
-└── README.md
+├── README.md
+└── agent.md
 ```
 
 ---
 
-## 🎥 Demo vidéo (YouTube)
-
-[Lien vers la vidéo de démonstration — 2 minutes]
-
----
 
 ## 🏆 Hackathon
 
-- **Événement :** Web Data UNLOCKED Hackathon (Bright Data × lablab.ai)
-- **Track :** 🛡️ Security & Compliance
-- **Période :** 26-30 Mai 2026
-- **Lieu :** Côte d'Ivoire (online) + San Francisco (onsite finale)
+- **Event:** Web Data UNLOCKED Hackathon (Bright Data × lablab.ai)
+- **Track:** 🛡️ Security & Compliance
+- **Dates:** May 25–30, 2026
+- **Location:** Côte d'Ivoire (online) + San Francisco (onsite finale)
+- **Repository:** [github.com/gedenedavid-ops/decroustra-AI](https://github.com/gedenedavid-ops/decroustra-AI)
 
 ---
 
-**decroustra.AI** — Parce que l'information centralisée sauve des vies.
+**decroustra.AI** — Because centralized information saves lives.
