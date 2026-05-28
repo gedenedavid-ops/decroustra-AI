@@ -36,7 +36,7 @@ A family searching for a loved one must:
 
 ## ⚠️ Clear Limitations (shown on opening)
 
-- **Does not replace emergency services** (Police 170, Fire 185)
+- **Does not replace emergency services** (Police 100 or 199 , Fire 110 / 111 / 170)
 - **No legal or medical advice**
 - **Public data only** — accuracy cannot be 100% guaranteed
 - **Does not contact families directly**
