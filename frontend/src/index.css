@@ -1,0 +1,20 @@
+@import "tailwindcss";
+
+@theme {
+    --color-bg-0: #faf9f5;
+    --color-bg-100: #ffffff;
+    --color-bg-200: #f0eee6;
+    --color-bg-300: #dddddd;
+    --color-text-100: #1f1e1d;
+    --color-text-200: #3d3d3a;
+    --color-text-300: #73726c;
+    --color-text-400: #888888;
+    --color-text-500: #999999;
+    --color-accent: #d97757;
+    --color-accent-hover: #c6613f;
+}
+
+body {
+    background-color: var(--color-bg-0);
+    color: var(--color-text-100);
+}

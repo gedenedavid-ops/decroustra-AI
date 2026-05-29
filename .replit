@@ -1,0 +1,7 @@
+run = "python app.py"
+
+[nix]
+channel = "stable-24_05"
+
+[deployment]
+run = ["sh", "-c", "cd frontend && npm install && npm run build && cd .. && python app.py"]

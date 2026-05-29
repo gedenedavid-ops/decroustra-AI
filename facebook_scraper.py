@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 
 import requests
 
-from config import BRIGHT_DATA_API_KEY, validate_config
+from config import BRIGHT_DATA_API_KEY, SOURCES, validate_config
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 
@@ -24,15 +24,15 @@ PROGRESS_URL = "https://api.brightdata.com/datasets/v3/progress"
 SNAPSHOT_URL = "https://api.brightdata.com/datasets/v3/snapshot"
 DATASET_ID = "gd_lz11l67o2cb3r0lkj3"  # Facebook Posts by Group
 
-GROUP_CANDIDATES = [
-    {
-        "url": "https://www.facebook.com/groups/3153156638063292",
-        "name": "SOS-AVIS DE DISPARITION",
-    },
-    {"url": "https://www.facebook.com/groups/630419480441627", "name": "Groupe 2"},
-    {"url": "https://www.facebook.com/groups/821910354606692", "name": "Groupe 3"},
-    {"url": "https://www.facebook.com/groups/327563508313339", "name": "Groupe 4"},
-]
+# Reconstruction dynamique des groupes à scraper
+GROUP_CANDIDATES = []
+for country, data in SOURCES.items():
+    for group_name in data["fb_groups"]:
+        # Pour cet exemple, on suppose que tu as les URLs.
+        # Bright Data accepte souvent le nom du groupe ou l'URL.
+        GROUP_CANDIDATES.append(
+            {"url": group_name, "name": f"{group_name} ({country})"}
+        )
 
 RAW_DIR = "data/raw"
 DATA_DIR = "data"

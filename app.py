@@ -1,28 +1,27 @@
 """
-app.py — Serveur Flask avec interface chat pour decroustra.AI
-
-Route /ask : reçoit une question, cherche dans les alertes, répond via DeepSeek
-Route /stats : retourne les statistiques des alertes
+app.py - Serveur Flask API pour decroustra.AI
+En dev: API uniquement (frontend sur http://localhost:5173)
+En prod (Replit): sert le frontend React build
 """
 
 import json
 import os
 import re
-from datetime import date
 
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, request, send_from_directory
+from flask_cors import CORS
 from openai import OpenAI
 
 from config import DEEPSEEK_API_KEY
 from search import AlertSearch
 
-# ─── Initialisation ──────────────────────────────────────────────────────────
+# --- Initialisation ----------------------------------------------------------
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="frontend/dist", static_url_path="")
+CORS(app)
 app.config["JSON_AS_ASCII"] = False
 deepseek = OpenAI(api_key=DEEPSEEK_API_KEY, base_url="https://api.deepseek.com")
 
-# Cache pour le moteur de recherche (evite de reload le JSON a chaque requete)
 _search_cache = None
 
 
@@ -33,19 +32,34 @@ def get_search():
     return _search_cache
 
 
-# ─── Routes ──────────────────────────────────────────────────────────────────
+# --- Frontend SPA ------------------------------------------------------------
 
 
-@app.route("/")
-def index():
-    return render_template("index.html")
+# Servir les fichiers statiques du build React
+@app.route("/assets/<path:filename>")
+def serve_assets(filename):
+    return send_from_directory("frontend/dist/assets", filename)
 
 
-@app.route("/stats")
+@app.route("/favicon.svg")
+def serve_favicon():
+    return send_from_directory("frontend/dist", "favicon.svg")
+
+
+# --- Routes API --------------------------------------------------------------
+
+
+@app.route("/api")
+def api_info():
+    return jsonify(
+        {"status": "decroustra.AI API v2", "endpoints": ["/api/ask", "/api/stats"]}
+    )
+
+
+@app.route("/api/stats")
 def stats():
     search = get_search()
     summary = search.get_summary()
-    # Lire les stats enrichies depuis alerts.json
     resolved = 0
     groups = 0
     try:
@@ -66,20 +80,21 @@ def stats():
     )
 
 
-@app.route("/ask", methods=["POST"])
+@app.route("/api/ask", methods=["POST"])
 def ask():
-    question = request.json.get("question", "").strip()
+    data = request.json
+    question = data.get("question", "").strip()
+    history = data.get("history", [])
+
     if not question:
         return jsonify({"answer": "Pose-moi une question sur les disparitions."})
 
     search = get_search()
     summary = search.get_summary()
 
-    # 1. Chercher les résultats
     results = search.search(question)
 
     if not results:
-        # Essayer une recherche plus large
         for word in question.split():
             if len(word) > 2:
                 partial = search.search_keyword(word)
@@ -87,77 +102,77 @@ def ask():
                     results = partial[:5]
                     break
 
-    if not results:
-        # Reponse utile quand rien trouve
-        return jsonify(
-            {
-                "answer": (
-                    f"Je n'ai pas trouve d'alerte correspondant exactement a ta recherche.\n\n"
-                    f"Notre base contient actuellement {summary['total']} alertes "
-                    f"dans {summary.get('total_locations', 0)} localites.\n\n"
-                    f"Essaie un lieu (Yopougon, Abidjan, Abobo...), "
-                    f"une tranche d'age (enfants, enfants disparus...), "
-                    f"ou demande le resume general.\n\n"
-                    f"N'hesite pas a essayer differentes formulations."
-                )
-            }
-        )
-
-    # 2. Formater les resultats pour DeepSeek (texte simple)
     alerts_text = ""
-    for i, a in enumerate(results[:10], 1):
-        name = a.get("name") or "Personne non identifiee"
-        age = f"{a['age']} ans" if a.get("age") is not None else "Age inconnu"
-        loc = a.get("last_location") or "Lieu inconnu"
-        contact = a.get("contact") or "Non communique"
-        alerts_text += f"{i}. {name}, {age}, dernier vu a {loc}. Contact: {contact}\n"
+    if results:
+        for i, a in enumerate(results[:10], 1):
+            name = a.get("name") or "Personne non identifiee"
+            age = f"{a['age']} ans" if a.get("age") is not None else "Age inconnu"
+            loc = a.get("last_location") or "Lieu inconnu"
+            contact = a.get("contact") or "Non communique"
+            alerts_text += (
+                f"{i}. {name}, {age}, dernier vu a {loc}. Contact: {contact}\n"
+            )
 
-    # 3. Generer la reponse avec DeepSeek
-    prompt = f"""Tu es decroustra.AI, un assistant de centralisation des disparitions
+    system_prompt = f"""Tu es decroustra.AI, un assistant IA de centralisation des disparitions
 en Cote d'Ivoire. Tu aides les familles a retrouver des personnes disparues.
 
-Contexte actuel:
-- {summary["total"]} alertes dans la base de donnees
-- {summary.get("total_locations", 0)} villes/localites couvertes
-- Age moyen des disparus: {summary.get("avg_age", "?")} ans
-
-Question de l'utilisateur: {question}
-
-Alertes correspondantes trouvees:
-{alerts_text}
+Contexte: {summary["total"]} alertes, {summary.get("total_locations", 0)} localites.
 
 Regles:
-- Reponds UNIQUEMENT en francais, en texte simple SANS markdown, SANS asterisques, SANS mise en forme
-- Utilise des tirets simples (-) pour les listes, pas de **gras** ni de *italique*
-- Cite les informations pertinentes (nom, lieu, contact)
-- Sois clair, precis et bienveillant
-- Propose d'affiner la recherche si pertinent
-- N'invente PAS d'informations
-- Si des resultats sont hors Côte d'Ivoire, mentionne-le clairement
+- Reponds en francais, texte simple, SANS markdown
+- Utilise des tirets (-) pour les listes
+- Garde le contexte de toute la conversation
+- Ne redis JAMAIS bonjour si tu as deja repondu avant dans l'historique
+- Sois direct et precis, evite les formules de politesse a repetition
 """
+
+    messages = [{"role": "system", "content": system_prompt}]
+
+    for h in history[-20:]:
+        messages.append({"role": h["role"], "content": h["content"]})
+
+    if results:
+        user_msg = f"Question: {question}\n\nAlertes trouvees:\n{alerts_text}"
+    else:
+        user_msg = f"Question: {question}\n\n(Aucune alerte specifique trouvee. Reponds de maniere generale.)"
+
+    messages.append({"role": "user", "content": user_msg})
 
     response = deepseek.chat.completions.create(
         model="deepseek-chat",
-        messages=[{"role": "user", "content": prompt}],
+        messages=messages,
         temperature=0.3,
         max_tokens=1000,
     )
 
     answer = response.choices[0].message.content
-    # Nettoyer le markdown eventuel
-    import re
-
-    answer = re.sub(r"\*\*([^*]+)\*\*", r"\1", answer)  # **gras** -> gras
-    answer = re.sub(r"\*([^*]+)\*", r"\1", answer)  # *italique* -> italique
-    answer = re.sub(r"`([^`]+)`", r"\1", answer)  # `code` -> code
+    answer = re.sub(r"\*\*([^*]+)\*\*", r"\1", answer)
+    answer = re.sub(r"\*([^*]+)\*", r"\1", answer)
+    answer = re.sub(r"`([^`]+)`", r"\1", answer)
     return jsonify({"answer": answer})
 
 
-# ─── Lancement ───────────────────────────────────────────────────────────────
+# --- SPA fallback (toute autre route -> index.html) -------------------------
+
+
+@app.route("/", defaults={"path": ""})
+@app.route("/<path:path>")
+def serve_spa(path):
+    # Si c'est une route API, ne pas interferer
+    if path.startswith("api/"):
+        return jsonify({"error": "Not found"}), 404
+    # Sinon, servir le frontend React
+    if os.path.exists("frontend/dist/index.html"):
+        return send_from_directory("frontend/dist", "index.html")
+    return jsonify(
+        {"error": "Frontend not built. Run: cd frontend && npm run build"}
+    ), 404
+
+
+# --- Lancement ---------------------------------------------------------------
 
 if __name__ == "__main__":
     print("=" * 50)
-    print("decroustra.AI - Serveur demarre")
-    print("http://localhost:5000")
+    print("decroustra.AI")
     print("=" * 50)
-    app.run(debug=False, port=5000)
+    app.run(host="0.0.0.0", debug=False, port=5000)

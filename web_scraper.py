@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 
 import requests
 
-from config import BRIGHT_DATA_API_KEY, validate_config
+from config import BRIGHT_DATA_API_KEY, BRIGHT_DATA_ZONE, SOURCES, validate_config
 
 # ─── Configuration ───────────────────────────────────────────────────────────
 
@@ -21,24 +21,41 @@ RAW_DIR = "data/raw"
 DATA_DIR = "data"
 ALERTS_FILE = os.path.join(DATA_DIR, "alerts.json")
 
-# Queries de recherche pour trouver des alertes de disparition
-SEARCH_QUERIES = [
-    "avis de disparition côte d'ivoire",
-    "alerte disparition enfant abidjan",
-    "personne disparue côte d'ivoire",
-    "avis de recherche côte d'ivoire",
-    "disparition inquiétante abidjan",
-    "retrouvons les personnes disparues ci",
-    "SOS disparition côte d'ivoire",
-    "enfant perdu abidjan",
-]
-
-# Sites d'actualité ivoiriens à scraper
-NEWS_SITES = [
-    "https://www.connectionivoirienne.net/?s=disparition",
-    "https://www.koaci.com/search?q=disparition",
-    "https://news.abidjan.net/search/?q=disparition",
-]
+# Reconstruction dynamique des queries et sites par pays
+SEARCH_QUERIES = []
+NEWS_SITES = []
+for country, data in SOURCES.items():
+    for site in data["news_sites"]:
+        NEWS_SITES.append(f"https://www.{site}/search/?q=disparition")
+    # Générer des requêtes Google localisées
+    if country == "CI":
+        SEARCH_QUERIES.extend(
+            [
+                "avis de disparition côte d'ivoire",
+                "alerte disparition enfant abidjan",
+            ]
+        )
+    elif country == "BF":
+        SEARCH_QUERIES.extend(
+            [
+                "avis de disparition burkina faso",
+                "alerte disparition ouagadougou",
+            ]
+        )
+    elif country == "ML":
+        SEARCH_QUERIES.extend(
+            [
+                "avis de disparition mali",
+                "alerte disparition bamako",
+            ]
+        )
+    elif country == "SN":
+        SEARCH_QUERIES.extend(
+            [
+                "avis de disparition sénégal",
+                "alerte disparition dakar",
+            ]
+        )
 
 
 def get_headers():
